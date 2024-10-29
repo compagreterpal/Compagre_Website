@@ -23,14 +23,18 @@ class SessionsController extends Controller
             'passUser' => 'required'
         ]);
         $user = DB::table('user')->where('username', $attributes['username'])->first();
-        dd($user);
-        if (Hash::check($attributes['passUser'], $user->passUser)) {
-            // Auth::loginUsingId($user->idUser); // Ganti dengan ID pengguna jika perlu
+
+        if (!$user) {
+            return back()->withErrors(['username' => 'Username tidak ditemukan.']);
+        }
+
+// Bandingkan password secara langsung
+        if ($attributes['passUser'] === $user->passUser) {
             session()->regenerate();
             return redirect('/dashboard')->with(['success' => 'You are logged in.']);
         }
 
-        return back()->withErrors(['passUser' => 'Username or password is invalid.']);
+return back()->withErrors(['passUser' => 'Username atau password salah.']);
     }
     
     public function destroy()
